@@ -1,12 +1,12 @@
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)  # This initializes the Flask app
+
+database = []  # Temporary storage for applications
+
 @app.route('/')
 def home():
     return "Welcome to the ATS System! Use /apply to submit applications."
-
-from flask import Flask, request, jsonify
-
-app = Flask(__name__)
-
-database = []  # Temporary storage for applications
 
 @app.route('/apply', methods=['POST'])
 def apply():
@@ -35,5 +35,4 @@ def update_status(applicant_id):
     return jsonify({"error": "Applicant not found"}), 404
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)  # Render uses port 10000
-
+    app.run(host='0.0.0.0', port=10000)  # Render requires port 10000
