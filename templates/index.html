@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATS Resume Checker</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        form { margin: 20px auto; padding: 20px; border: 1px solid #ccc; width: 50%; }
+        input, textarea { width: 90%; margin: 10px 0; padding: 8px; }
+        button { background: blue; color: white; padding: 10px; border: none; cursor: pointer; }
+        h2 { color: green; }
+    </style>
+</head>
+<body>
+    <h1>ATS Resume Checker</h1>
+    <form action="/" method="post" enctype="multipart/form-data">
+        <label>Upload Resume (PDF only):</label><br>
+        <input type="file" name="resume" accept=".pdf" required><br>
+        
+        <label>Enter Job Description:</label><br>
+        <textarea name="job_description" rows="5" required></textarea><br>
+        
+        <button type="submit">Check ATS Score</button>
+    </form>
+
+    {% if ats_score is not none %}
+        <h2>ATS Score: {{ ats_score }}%</h2>
+    {% endif %}
+</body>
+</html>
