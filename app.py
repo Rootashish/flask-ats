@@ -8,6 +8,7 @@ from collections import Counter
 app = Flask(__name__)  
 CORS(app)
 
+# File upload configuration
 UPLOAD_FOLDER = "uploads"
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -67,6 +68,11 @@ def apply():
         resume_text = extract_text_from_pdf(file_path)  # Extract text
         ats_score = calculate_ats_score(resume_text, job_description)  # Calculate score
 
+        # ✅ Debugging prints
+        print(f"Extracted resume text: {resume_text[:500]}")  # Print only first 500 chars
+        print(f"Job description: {job_description}")
+        print(f"Calculated ATS Score: {ats_score}")
+
         applicant = {
             "id": len(database) + 1,
             "name": request.form.get("name"),
@@ -96,8 +102,4 @@ def uploaded_file(filename):
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)  
-    print(f"Extracted resume text: {resume_text}")
-print(f"Job description: {job_description}")
-print(f"Calculated ATS Score: {ats_score}")
-
+    app.run(host='0.0.0.0', port=10000)  # Ensure Render works with port 10000
