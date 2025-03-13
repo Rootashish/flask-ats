@@ -1,6 +1,4 @@
 flask
 gunicorn
-flask
 flask-cors
 flask-uploads
-gunicorn
