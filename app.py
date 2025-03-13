@@ -1,5 +1,14 @@
 from flask import Flask, request, jsonify
 
+app = Flask(__name__)  # Initialize Flask app
+
+@app.route('/')
+def home():
+    return "Welcome to the ATS System! Use /apply to submit applications."
+
+
+from flask import Flask, request, jsonify
+
 app = Flask(__name__)  # This initializes the Flask app
 
 database = []  # Temporary storage for applications
