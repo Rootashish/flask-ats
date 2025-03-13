@@ -1,3 +1,7 @@
+@app.route('/')
+def home():
+    return "Welcome to the ATS System! Use /apply to submit applications."
+
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
