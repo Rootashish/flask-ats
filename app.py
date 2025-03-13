@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, render_template
 from flask_cors import CORS
 import os
 import re
@@ -8,15 +8,12 @@ from collections import Counter
 app = Flask(__name__)  
 CORS(app)
 
-# File upload configuration
 UPLOAD_FOLDER = "uploads"
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # Limit file size to 5MB
-
-database = []  # Store applications in memory
 
 def extract_text_from_pdf(pdf_path):
     """Extracts text from a PDF resume."""
@@ -46,60 +43,27 @@ def calculate_ats_score(resume_text, job_description):
         return 0  # Avoid division by zero
     return round((matched_words / total_keywords) * 100, 2)  # Percentage score
 
-@app.route('/')
+@app.route("/", methods=["GET", "POST"])
 def home():
-    return "Welcome to the ATS System! Use /apply to submit applications."
+    ats_score = None  # Default score is None
 
-@app.route('/apply', methods=['POST'])
-def apply():
-    if "resume" not in request.files:
-        return jsonify({"error": "No file part"}), 400
+    if request.method == "POST":
+        if "resume" not in request.files or "job_description" not in request.form:
+            return render_template("index.html", ats_score="Error: Missing file or job description")
 
-    file = request.files["resume"]
-    job_description = request.form.get("job_description", "")  # Get job description
+        file = request.files["resume"]
+        job_description = request.form["job_description"]
 
-    if file.filename == "":
-        return jsonify({"error": "No selected file"}), 400
+        if file.filename == "":
+            return render_template("index.html", ats_score="Error: No selected file")
 
-    if file:
         file_path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
         file.save(file_path)  # Save resume
 
         resume_text = extract_text_from_pdf(file_path)  # Extract text
         ats_score = calculate_ats_score(resume_text, job_description)  # Calculate score
 
-        # ✅ Debugging prints
-        print(f"Extracted resume text: {resume_text[:500]}")  # Print only first 500 chars
-        print(f"Job description: {job_description}")
-        print(f"Calculated ATS Score: {ats_score}")
+    return render_template("index.html", ats_score=ats_score)
 
-        applicant = {
-            "id": len(database) + 1,
-            "name": request.form.get("name"),
-            "email": request.form.get("email"),
-            "resume": f"/uploads/{file.filename}",
-            "status": "Pending",
-            "ats_score": ats_score  # Store ATS score
-        }
-        database.append(applicant)
-        return jsonify({"message": "Application submitted", "applicant": applicant}), 201
-
-@app.route('/applicants', methods=['GET'])
-def get_applicants():
-    return jsonify(database)
-
-@app.route('/update_status/<int:applicant_id>', methods=['PUT'])
-def update_status(applicant_id):
-    data = request.json
-    for applicant in database:
-        if applicant["id"] == applicant_id:
-            applicant["status"] = data.get("status", applicant["status"])
-            return jsonify({"message": "Status updated", "applicant": applicant})
-    return jsonify({"error": "Applicant not found"}), 404
-
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)  # Ensure Render works with port 10000
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
