@@ -97,3 +97,7 @@ def uploaded_file(filename):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)  
+    print(f"Extracted resume text: {resume_text}")
+print(f"Job description: {job_description}")
+print(f"Calculated ATS Score: {ats_score}")
+
